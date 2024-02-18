@@ -1,4 +1,5 @@
-node {
+pipeline {
+    agent any
     environment {
         DOCKER = credentials('dockerhub')
     }
