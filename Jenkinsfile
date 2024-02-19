@@ -22,7 +22,7 @@ pipeline {
 
                     // Authenticate and push to Docker Hub
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USR', passwordVariable: 'DOCKER_PSW')]) {
-                        bat "echo dckr_pat_2Ye8FhkSvJ1V4lwVB24rJLt6fiA | docker login -u %DOCKER_USR% --password-stdin"
+                        bat "docker login -u %DOCKER_USR% -p dckr_pat_2Ye8FhkSvJ1V4lwVB24rJLt6fiA"
                         bat "docker push $IMAGE_NAME:$NODEJS_VERSION"
                     }
                 }
