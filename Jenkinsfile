@@ -1,14 +1,40 @@
-node {
-    def app 
-    stage('clone repository') {
-      checkout scm  
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        IMAGE_NAME = 'mimohkulkarni17/nodejs-jenkins-docker'
+        NODEJS_VERSION = '14'  // Change this to your desired Node.js version
     }
-     stage('Push Image'){
-        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-            app = docker.build("mimohkulkarni17/nodejs-jenkins-docker")
-            sh 'docker push mimohkulkarni17/nodejs-jenkins-docker'
-            app.push("${env.BUILD_NUMBER}")       
-            app.push("latest")   
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                checkout scm
+            }
         }
-     }
+
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    // Build Docker image
+                    sh "docker build -t $IMAGE_NAME:$NODEJS_VERSION ."
+
+                    // Authenticate and push to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USR', passwordVariable: 'DOCKER_PSW')]) {
+                        sh "echo \$DOCKER_PSW | docker login -u \$DOCKER_USR --password-stdin"
+                        sh "docker push $IMAGE_NAME:$NODEJS_VERSION"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                sh 'docker logout'
+            }
+        }
+    }
 }
