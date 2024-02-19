@@ -16,6 +16,7 @@ pipeline {
 
         stage('Build and Push Docker Image') {
             steps {
+                script {
                     // Build Docker image
                     sh "docker build -t $IMAGE_NAME:$NODEJS_VERSION ."
 
@@ -24,6 +25,7 @@ pipeline {
                         sh "echo \$DOCKER_PSW | docker login -u \$DOCKER_USR --password-stdin"
                         sh "docker push $IMAGE_NAME:$NODEJS_VERSION"
                     }
+                }
             }
         }
     }
