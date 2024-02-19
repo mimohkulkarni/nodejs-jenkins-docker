@@ -4,13 +4,22 @@ import { useState } from "react";
 function App() {
   const [city, setCity] = useState("");
   const [wheather, setWheather] = useState(null);
+  const [showError, setshowError] = useState(null);
 
   const getCityWheather = () => {
     if (city === "") return;
     fetch(`/predict-wheather?city=${city}`)
       .then((response) => response.json())
       .then((data) => {
+        if (data?.statusCode && data?.statusCode !== 200) {
+          setshowError(data?.message);
+          return;
+        }
+        setshowError(null);
         setWheather(data);
+      })
+      .catch((error) => {
+        setshowError(null);
       });
   };
 
@@ -46,17 +55,18 @@ function App() {
         name="city"
       />
       <input type="button" onClick={() => getCityWheather()} value="Submit" />
-      {updatedWheather ? (
+      {showError ? <p style={{ color: "red" }}>{showError}</p> : null}
+      {updatedWheather && !showError ? (
         <div>
           {Object.keys(updatedWheather).map((item) => (
-            <div>
+            <div key={item}>
               <h3 style={{ textAlign: "center" }}>Date: {item}</h3>
               <div className="wheather">
                 {updatedWheather[item].map((item) => (
                   <div key={item.dt}>
                     <p>
                       <strong>Time:</strong> {item.date.getHours()}:
-                      {item.date.getMinutes()}
+                      {item.date.toLocaleTimeString().split(":")[1]}
                     </p>
                     <p>
                       <strong>Weather:</strong> {item.weather}
@@ -76,35 +86,27 @@ function App() {
                   </div>
                 ))}
               </div>
-            </div>
-          ))}
-          {wheather?.list
-            ?.slice(0, 3)
-            ?.some((item) => item.weather?.[0]?.main === "Rain") ? (
-            <h3>Advice: Carry umbrella</h3>
-          ) : null}
-          {wheather?.list
-            ?.slice(0, 3)
-            ?.some((item) => item?.main?.temp > 40) ? (
-            <h3>Advice: Use sunscreen lotion</h3>
-          ) : null}
-          {wheather?.list
-            ?.slice(0, 3)
-            ?.some((item) => item.weather?.[0]?.main === "Thunderstorms") ? (
-            <h3>Don't step out! A Storm is brewing!</h3>
-          ) : null}
-          {wheather?.list
-            ?.slice(0, 3)
-            ?.some((item) => item?.wind?.speed > 10) ? (
-            <h3>It's too windy, watch out!</h3>
-          ) : null}
-          {wheather?.list?.map((item) => (
-            <div>
-              <p>{item.dt_txt}</p>
-              <p>{item.main.temp}</p>
+              {updatedWheather[item]?.some(
+                (item1) => item1?.weather === "Rain"
+              ) ? (
+                <h3>Advice: Carry umbrella</h3>
+              ) : null}
+              {updatedWheather[item]?.some((item1) => item?.temp > 40) ? (
+                <h3>Advice: Use sunscreen lotion</h3>
+              ) : null}
+              {updatedWheather[item]?.some(
+                (item1) => item1.weather === "Thunderstorms"
+              ) ? (
+                <h3>Don't step out! A Storm is brewing!</h3>
+              ) : null}
+              {updatedWheather[item]?.some((item1) => item1?.speed > 10) ? (
+                <h3>It's too windy, watch out!</h3>
+              ) : null}
             </div>
           ))}
         </div>
+      ) : !showError ? (
+        <h2>Loading...</h2>
       ) : null}
     </div>
   );

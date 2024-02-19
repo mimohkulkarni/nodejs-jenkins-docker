@@ -1,9 +1,4 @@
-import express, {
-  Application,
-  ErrorRequestHandler,
-  Request,
-  Response,
-} from "express";
+import express, { Application, Request, Response } from "express";
 import swaggerUi from "swagger-ui-express";
 import yaml from "yamljs";
 import swaggerJSDoc from "swagger-jsdoc";
@@ -35,9 +30,15 @@ app.get("/predict-wheather", async (req: Request, res: Response) => {
   } catch (err: any) {
     console.log(err);
     if (err instanceof APIError) {
-      res.status(err.statusCode).send({ message: err.message, code: err.code });
+      res.status(err.statusCode).send({
+        message: err.message,
+        code: err.code,
+        statusCode: err.statusCode,
+      });
     } else {
-      res.status(400).send({ message: err.message, code: "ERROR_CODE" });
+      res
+        .status(400)
+        .send({ message: err.message, code: "ERROR_CODE", statusCode: 400 });
     }
   }
 });
