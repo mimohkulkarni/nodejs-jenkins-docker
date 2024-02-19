@@ -16,25 +16,21 @@ pipeline {
 
         stage('Build and Push Docker Image') {
             steps {
-                script {
                     // Build Docker image
-                    sh "docker build -t $IMAGE_NAME:$NODEJS_VERSION ." || bat "docker build -t $IMAGE_NAME:$NODEJS_VERSION ."
+                    sh "docker build -t $IMAGE_NAME:$NODEJS_VERSION ."
 
                     // Authenticate and push to Docker Hub
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USR', passwordVariable: 'DOCKER_PSW')]) {
-                        sh "echo \$DOCKER_PSW | docker login -u \$DOCKER_USR --password-stdin" || bat "echo \$DOCKER_PSW | docker login -u \$DOCKER_USR --password-stdin"
-                        sh "docker push $IMAGE_NAME:$NODEJS_VERSION" || bat "docker push $IMAGE_NAME:$NODEJS_VERSION"
+                        sh "echo \$DOCKER_PSW | docker login -u \$DOCKER_USR --password-stdin"
+                        sh "docker push $IMAGE_NAME:$NODEJS_VERSION"
                     }
-                }
             }
         }
     }
 
     post {
         always {
-            script {
-                sh 'docker logout' || bat 'docker logout'
-            }
+                sh 'docker logout'
         }
     }
 }
