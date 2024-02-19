@@ -73,6 +73,8 @@ Start the Docker container with the following command:
 docker run -p 8080:8080 mimohkulkarni17/nodejs-jenkins-docker:latest
 ```
 
+Optionally you can change the port 8080 to your desired available port.
+
 Accessing the Application
 The Swagger documentation for the API is available at http://localhost:8080/api-docs/#/.
 The React.js frontend can be accessed at http://localhost:8080.
