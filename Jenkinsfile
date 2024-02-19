@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         IMAGE_NAME = 'mimohkulkarni17/nodejs-jenkins-docker'
-        NODEJS_VERSION = '14'  // Change this to your desired Node.js version
+        NODEJS_VERSION = '21'  // Change this to your desired Node.js version
     }
 
     stages {
