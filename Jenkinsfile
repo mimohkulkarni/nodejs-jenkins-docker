@@ -1,50 +1,14 @@
-pipeline {
-    agent any
-
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-        IMAGE_NAME = 'mimohkulkarni17/nodejs-jenkins-docker'
+node {
+    def app 
+    stage('clone repository') {
+      checkout scm  
     }
-
-    stages {
-        stage('Clone Repository') {
-            steps {
-                checkout scm
-            }
+     stage('Push Image'){
+        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
+            app = docker.build("mimohkulkarni17/nodejs-jenkins-docker")
+            app.push()
+            app.push("${env.BUILD_NUMBER}")       
+            app.push("latest")   
         }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    sh "docker build -t $IMAGE_NAME ."
-                }
-            }
-        }
-
-        stage('Login to Docker Registry') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USR', passwordVariable: 'DOCKER_PSW')]) {
-                        sh "echo \$DOCKER_PSW | docker login -u \$DOCKER_USR --password-stdin"
-                    }
-                }
-            }
-        }
-
-        stage('Push Image to Docker Registry') {
-            steps {
-                script {
-                    sh "docker push $IMAGE_NAME"
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            script {
-                sh 'docker logout'
-            }
-        }
-    }
+     }
 }
